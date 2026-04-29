@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 
-const API_URL = 'http://localhost:4000/api';
+const API_URL = 'https://crud-backend-5eav.onrender.com/api';
 
 export const CrudBase = ({ titulo, endpoint, idCampo, campos, inicial }) => {
   const [lista, setLista] = useState([]);
@@ -8,28 +8,28 @@ export const CrudBase = ({ titulo, endpoint, idCampo, campos, inicial }) => {
   const [editando, setEditando] = useState(null);
   const [mensaje, setMensaje] = useState('');
 
-  const obtenerDatos = async () => {
-    try {
-      const respuesta = await fetch(`${API_URL}/${endpoint}`);
-      const datos = await respuesta.json();
+  const obtenerDatos = useCallback(async () => {
+  try {
+    const respuesta = await fetch(`${API_URL}/${endpoint}`);
+    const datos = await respuesta.json();
 
-      if (!respuesta.ok) {
-        setMensaje(datos.error || datos.mensaje || 'Error al cargar datos');
-        setLista([]);
-        return;
-      }
-
-      setLista(Array.isArray(datos) ? datos : []);
-      setMensaje('');
-    } catch (error) {
-      setMensaje('No se pudo conectar con el backend. Ejecuta npm run backend.');
+    if (!respuesta.ok) {
+      setMensaje(datos.error || datos.mensaje || 'Error al cargar datos');
       setLista([]);
+      return;
     }
-  };
 
-  useEffect(() => {
-    obtenerDatos();
-  }, [endpoint]);
+    setLista(Array.isArray(datos) ? datos : []);
+    setMensaje('');
+  } catch (error) {
+    setMensaje('No se pudo conectar con el backend. Ejecuta npm run backend.');
+    setLista([]);
+  }
+}, [endpoint]);
+
+ useEffect(() => {
+  obtenerDatos();
+}, [obtenerDatos]);
 
   const manejarCambio = (e) => {
     setFormulario({ ...formulario, [e.target.name]: e.target.value });
